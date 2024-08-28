@@ -1,0 +1,10 @@
+A somewhat rudimentary recreation of Minesweeper as a challenge to myself, and to help familiarise myself with the Monogame framework.
+
+CONTROLS:
+
+Left click - Uncover tiles
+Right click - Flag tiles
+R - Reset board
+1 - Set difficulty easy
+2 - Set difficulty medium (default)
+3 - Set difficulty hard

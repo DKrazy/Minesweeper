@@ -47,6 +47,8 @@ namespace Minesweeper
 
         bool gridInitialized = false;
 
+        double timerStart, timerEnd, timer;
+
         // Constants
 
         const int UNCOVERED = 8;
@@ -128,12 +130,12 @@ namespace Minesweeper
                 {
                     tileStates[x, y] = UNCOVERED;
 
-                    if (!gridInitialized) InitializeGrid(new Point(x, y));
+                    if (!gridInitialized) { InitializeGrid(new Point(x, y)); StartTimer(gameTime); };
 
                     if (grid[x, y] == 0) Zerospread(new Point(x, y));
-                    if (grid[x, y] == MINE) GameLose();
+                    if (grid[x, y] == MINE) { GameLose(); StopTimer(gameTime); }
 
-                    if (gameState != LOSE && CheckWin()) gameState = WIN;
+                    if (gameState != LOSE && CheckWin()) { gameState = WIN; StopTimer(gameTime); }
                 }
 
                 if (mState.RightButton == ButtonState.Pressed && (tileStates[x, y] == COVERED || tileStates[x, y] == FLAGGED))
@@ -175,7 +177,12 @@ namespace Minesweeper
             _spriteBatch.DrawString(_font, gameState.ToString(), new Vector2(30, 120), Color.White);
             _spriteBatch.DrawString(_font, (new Point(gridWidth, gridHeight)).ToString(), new Vector2(30, 150), Color.White);*/
 
-            _spriteBatch.DrawString(_font, MESSAGES[gameState], new Vector2((windowWidth - MESSAGE_WIDTHS[gameState]) / 2, 30), Color.White);
+            _spriteBatch.DrawString(_font, MESSAGES[gameState], new Vector2((windowWidth - MESSAGE_WIDTHS[gameState]) / 2, 20), Color.White);
+
+            if (gameState != PLAYING)
+            {
+                _spriteBatch.DrawString(_font, $"Time: {timer.ToString("N2")}s", new Vector2((windowWidth - TimerX()) / 2, 60), Color.White);
+            }
 
             _spriteBatch.End();
 
@@ -259,8 +266,8 @@ namespace Minesweeper
 
         Point MousedOverTile(Point mPos)
         {
-            int x = (mPos.X - (windowWidth - gridWidth*tileLength)/2) / tileLength;
-            int y = (mPos.Y - (windowHeight - gridHeight*tileLength)/2) / tileLength;
+            int x = (mPos.X - (windowWidth - gridWidth * tileLength) / 2) / tileLength;
+            int y = (mPos.Y - (windowHeight - gridHeight * tileLength) / 2) / tileLength;
 
             return new Point(x, y);
         }
@@ -338,6 +345,32 @@ namespace Minesweeper
             }
 
             return true;
+        }
+
+        void StartTimer(GameTime gameTime)
+        {
+            timerStart = gameTime.TotalGameTime.TotalSeconds;
+        }
+
+        void StopTimer(GameTime gameTime)
+        {
+            timerEnd = gameTime.TotalGameTime.TotalSeconds;
+
+            timer = timerEnd - timerStart;
+        }
+
+        int TimerX()
+        {
+            // I checked, "Time: s" has a width of 97 pixels.
+
+            int width = 97;
+
+            foreach(char c in timer.ToString("N2"))
+            {
+                width += (int)_font.GetGlyphs()[c].Width;
+            }
+
+            return width;
         }
     }
 }
